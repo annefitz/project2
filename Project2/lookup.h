@@ -85,6 +85,8 @@ public:
 class Question{
 public: 
 
+	u_char *rawbuffer;
+
 	Question(void);			// constructor
 
 	bool MakePacket (u_char* pkt, FixedDNSheader &dnsheader, QueryHeader &queryheader);	// need to add parameters
