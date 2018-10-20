@@ -82,13 +82,16 @@ public:
 };
 #pragma pack(pop)
 
-class Question{
-public: 
+class Question {
+public:
+
+	u_char *rawbuffer;
 
 	Question(void);			// constructor
 
-	bool MakePacket ( );	// need to add parameters
+	bool MakePacket(u_char* pkt, FixedDNSheader &dnsheader, QueryHeader &queryheader);	// need to add parameters
 
+	bool CreateQuestion(string host);
 
 
 };
