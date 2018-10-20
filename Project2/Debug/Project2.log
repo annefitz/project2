@@ -1,2 +1,6 @@
-﻿  main.cpp
-  Project2.vcxproj -> C:\Users\annefitz\Documents\cps470\project2\project2\Debug\Project2.exe
+﻿  lookup.cpp
+c:\users\spencer\documents\github\project2\project2\lookup.cpp(57): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+  ref_main.cpp
+  Generating Code...
+  Project2.vcxproj -> C:\Users\Spencer\Documents\GitHub\project2\Debug\Project2.exe

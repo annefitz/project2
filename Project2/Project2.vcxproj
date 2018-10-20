@@ -129,6 +129,7 @@
     <ClCompile Include="dns.cpp" />
     <ClCompile Include="lookup.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ref_main.cpp" />
     <ClCompile Include="winsock.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
