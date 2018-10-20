@@ -44,9 +44,31 @@ UINT thread(LPVOID pParam)
 	return 0;
 }
 
-int main(void)
+int main(int argc, char* argv[])
 {
+	if (argc != 2) {
+		std::printf("Invalid number of args");
+		return -1;
+	}
+	int arg_type;
+	string host = argv[1];
+	if (isdigit(host[0])) {
+		std::printf("IP\n");
+		arg_type = 1;
+		if (inet_addr(argv[1]) == INADDR_NONE) {
+			std::printf("Invalid IP");
+			return -1;
+		}
+		host = host + ".in-addr.arpa";
+	}
+	else {
+		std::printf("HOSTNAME\n");
+		arg_type = 2;
+	}
+	cout << "argc: " << argc << ", argv: " << host << endl;
 	WSADATA wsaData;
+
+	getchar();
 
 	// Initialize WinSock in your project only once!
 	WORD wVersionRequested = MAKEWORD(2,2);
@@ -101,7 +123,7 @@ int main(void)
 	// testing the DNS query
 
 //	string host = "www.yahoo.com" ; 
-	string host = "7.74.238.131.in-addr.arpa"; 
+//	string host = "7.74.238.131.in-addr.arpa"; 
 	int pkt_size = sizeof(FixedDNSheader) + sizeof(QueryHeader) + host.size() + 2; //+1 byte for "size" for last substring, +1 for "0" meaning the end of question
 	
 	char* pkt = new char [pkt_size];
@@ -140,8 +162,14 @@ int main(void)
 	qHDR->qclass = htons(DNS_INET); 
 //	qHDR->qclass = htons( 0x0001); 
 
-//	qHDR->type = htons( DNS_A ); 
-	qHDR->type = htons( DNS_PTR );  // for reverse dns lookup
+	// if hostname
+	if (arg_type == 2) {
+		qHDR->type = htons(DNS_A);
+	}
+	// if IP
+	else if (arg_type == 1) {
+		qHDR->type = htons(DNS_PTR);  // for reverse dns lookup
+	}
 
 	Winsock ws;
 
@@ -160,7 +188,7 @@ int main(void)
 
 	for ( int i = 0; i< pkt_size; i++)
 	{
-		printf("i=%d %c\n",i, pkt[i] ); 
+		cout << "i= " << i << " " << pkt[i] << endl;
 	}
 	cout << endl; 
 
@@ -199,6 +227,8 @@ int main(void)
 
 	
 	printf ("Terminating main(), completion time %d ms\n", timeGetTime() - t);
+
+	getchar();
 
 	WSACleanup();	
 

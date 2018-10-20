@@ -82,14 +82,26 @@ public:
 };
 #pragma pack(pop)
 
+<<<<<<< HEAD
 class Question{
 public: 
 	//+1 byte for "size" for last substring, +1 for "0" meaning the end of question;
+=======
+class Question {
+public:
+
+>>>>>>> a56550e6247b47a417093b77c150a1b220b1224c
 	u_char *rawbuffer;
 
 	Question(void);			// constructor
 
+<<<<<<< HEAD
 	bool MakePacket (u_char* pkt, FixedDNSheader &dnsheader, QueryHeader &queryheader);	// need to add parameters
+=======
+	bool MakePacket(u_char* pkt, FixedDNSheader &dnsheader, QueryHeader &queryheader);	// need to add parameters
+
+	bool CreateQuestion(string host);
+>>>>>>> a56550e6247b47a417093b77c150a1b220b1224c
 
 	bool CreateQuestion(string host);
 
