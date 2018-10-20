@@ -84,7 +84,7 @@ public:
 
 class Question{
 public: 
-
+	//+1 byte for "size" for last substring, +1 for "0" meaning the end of question;
 	u_char *rawbuffer;
 
 	Question(void);			// constructor
@@ -92,6 +92,5 @@ public:
 	bool MakePacket (u_char* pkt, FixedDNSheader &dnsheader, QueryHeader &queryheader);	// need to add parameters
 
 	bool CreateQuestion(string host);
-
 
 };

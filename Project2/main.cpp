@@ -111,10 +111,10 @@ int main(void)
 
 	dHDR->ID = htons(102); 
 	dHDR->questions = htons(1); 
-	dHDR->addRRs = 0; 
+	dHDR->addRRs = 0;
 	dHDR->answers = 0;
-	dHDR->authRRs = 0; 
-	dHDR->flags = htons( DNS_QUERY | DNS_RD | DNS_STDQUERY );  
+	dHDR->authRRs = 0;
+	dHDR->flags = htons( DNS_QUERY | DNS_RD | DNS_STDQUERY );
 //	dHDR->flags = htons( 0x0100 );  
 
 	int position = host.find ("."); 
@@ -124,7 +124,7 @@ int main(void)
 
 	host +="." ; 
 	while ( position != -1 )
-	{	
+	{
 		sub_size = position - i; 
 		sub_str  = host.substr( i, position );
 
@@ -133,7 +133,7 @@ int main(void)
 		memcpy ( pkt + hdr_size + i, sub_str.c_str(), sub_size ); // specify the actual subdomain
 
 		i += sub_size; 
-		position = host.find (".", i ); 	
+		position = host.find (".", i ); 
 	}	
 	pkt[hdr_size+i]= 0; 
 
@@ -143,7 +143,7 @@ int main(void)
 //	qHDR->type = htons( DNS_A ); 
 	qHDR->type = htons( DNS_PTR );  // for reverse dns lookup
 
-	Winsock ws; 
+	Winsock ws;
 
 	SOCKET sock = ws.OpenSocket(); // defined in winsock.h
 
@@ -181,6 +181,7 @@ int main(void)
 
 	printf ( "flag 0x=%x\n", ntohs( rDNS->flags ) ) ; 
 	unsigned short rcode = 0x0F; 
+	rcode = rcode & ntohs( rDNS->flags ); 
 	rcode = rcode & ntohs( rDNS->flags ); 
 	cout<<"Rcode= " << rcode <<endl; ; 
 
