@@ -1,2 +1,1 @@
-﻿  main.cpp
-  Project2.vcxproj -> C:\Users\annefitz\Documents\cps470\project2\project2\Debug\Project2.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\Microsoft.Common.CurrentVersion.targets(31,3): error MSB4024: The imported project file "C:\Users\Spencer\Documents\GitHub\project2\Project2\Project2.vcxproj.user" could not be loaded. Name cannot begin with the '<' character, hexadecimal value 0x3C. Line 4, position 2.

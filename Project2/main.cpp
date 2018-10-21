@@ -1,7 +1,7 @@
 /*	main.cpp
 	CPS 472 Sample Code
 
-	To compile, you need to add additional libraries: 
+	To compile, you need to add additional libraries:
 	1. Right Click on project name, select "Properties"
 	2. Go to Linker/Input/Additional Dependencies: ws2_32.lib;winmm.lib;Iphlpapi.lib;Psapi.lib;
 	   use ; to separate them.
@@ -20,7 +20,7 @@
 
 
 // this class is passed to all threads, acts as shared memory
-class Parameters{
+class Parameters {
 public:
 	HANDLE mutex;
 	HANDLE finished;
@@ -34,8 +34,8 @@ UINT thread(LPVOID pParam)
 
 	// wait for mutex, then print and sleep inside the critical section
 	WaitForSingleObject(p->mutex, INFINITE);					// lock mutex
-	printf ("Thread %d started\n", GetCurrentThreadId ());		// always print inside critical section to avoid screen garbage
-	Sleep (1000);
+	printf("Thread %d started\n", GetCurrentThreadId());		// always print inside critical section to avoid screen garbage
+	Sleep(1000);
 	ReleaseMutex(p->mutex);										// release critical section
 
 	// signal that this thread has exitted
@@ -47,12 +47,11 @@ UINT thread(LPVOID pParam)
 int main(int argc, char* argv[])
 {
 	if (argc != 2) {
-		std::printf("Invalid number of args");
+		std::printf("Invalid number of args.\n");
 		return -1;
 	}
 	int arg_type;
 	string host = argv[1];
-	string backwardsIP;
 	if (isdigit(host[0])) {
 		std::printf("IP\n");
 		arg_type = 1;
@@ -60,65 +59,53 @@ int main(int argc, char* argv[])
 			std::printf("Invalid IP");
 			return -1;
 		}
-		int position = host.find(".");
-		int i = 0; int size = 0;
-		while (position != string::npos) {
-			size = position - i;
-			backwardsIP.insert(0, host.substr( i, size ));
-			backwardsIP.insert(0, ".");
-			i += size+1;
-			position = host.find(".", i );
-		}
-		backwardsIP.insert(0, host.substr(i, host.length() - i));
-		cout << "FORWARD IP: " << host << " BACKWARDS IP: " << backwardsIP << endl;
-		host = backwardsIP + ".in-addr.arpa";
+		host = host + ".in-addr.arpa";
 	}
 	else {
 		std::printf("HOSTNAME\n");
 		arg_type = 2;
 	}
 	cout << "argc: " << argc << ", argv: " << host << endl;
+
 	WSADATA wsaData;
 
-	getchar();
-
 	// Initialize WinSock in your project only once!
-	WORD wVersionRequested = MAKEWORD(2,2);
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	if (WSAStartup(wVersionRequested, &wsaData) != 0) {
-		printf("WSAStartup error %d\n", WSAGetLastError ());
-		WSACleanup();	
+		printf("WSAStartup error %d\n", WSAGetLastError());
+		WSACleanup();
 		return -1;
 	}
 
 
-	printf ("-----------------\n");
+	printf("-----------------\n");
 
 	// print our primary/secondary DNS IPs
 	DNS mydns;
-	string dnsIP = ""; 
-	mydns.printDNSServer (dnsIP);	
+	string dnsIP = "";
+	mydns.printDNSServer(dnsIP);
 
-	printf ("-----------------\n");
+	printf("-----------------\n");
 
 	CPU cpu;
 	// average CPU utilization over 500 ms; must sleep *after* the constructor of class CPU and between calls to GetCpuUtilization
-	Sleep (500);
+	Sleep(500);
 	// now print
-	double util = cpu.GetCpuUtilization (NULL);
-	printf ("current CPU utilization %f%%\n", util);
+	double util = cpu.GetCpuUtilization(NULL);
+	printf("current CPU utilization %f%%\n", util);
 
-	printf ("-----------------\n");
+	printf("-----------------\n");
 
 	// thread handles are stored here; they can be used to check status of threads, or kill them
-	HANDLE *ptrs = new HANDLE [2];
+	HANDLE *ptrs = new HANDLE[2];
 	Parameters p;
-	
+
 	// create a mutex for accessing critical sections (including printf)
-	p.mutex = CreateMutex (NULL, 0, NULL);
-	
+	p.mutex = CreateMutex(NULL, 0, NULL);
+
 	// create a semaphore that counts the number of active threads
 	p.finished = CreateSemaphore(NULL, 0, 2, NULL);
-	p.eventQuit = CreateEvent (NULL, true, false, NULL);
+	p.eventQuit = CreateEvent(NULL, true, false, NULL);
 
 	// get current time
 	DWORD t = timeGetTime();
@@ -132,49 +119,32 @@ int main(int argc, char* argv[])
 	WaitForSingleObject(p.finished, INFINITE);
 
 
-	// testing the DNS query
+	// -------------------------------  testing the DNS query  -----------
 
 //	string host = "www.yahoo.com" ; 
 //	string host = "7.74.238.131.in-addr.arpa"; 
 	int pkt_size = sizeof(FixedDNSheader) + sizeof(QueryHeader) + host.size() + 2; //+1 byte for "size" for last substring, +1 for "0" meaning the end of question
-	
-	char* pkt = new char [pkt_size];
 
-	FixedDNSheader * dHDR = (FixedDNSheader *) pkt; 
-	QueryHeader *qHDR = (QueryHeader*) ( pkt+ pkt_size -sizeof (QueryHeader) );
+	//char* pkt = new char[pkt_size];
 
-	dHDR->ID = htons(102); 
-	dHDR->questions = htons(1); 
-	dHDR->addRRs = 0; 
+	//FixedDNSheader * dHDR = (FixedDNSheader *)pkt;
+	//QueryHeader *qHDR = (QueryHeader*)(pkt + pkt_size - sizeof(QueryHeader));
+
+	FixedDNSheader * dHDR = new FixedDNSheader;
+	QueryHeader * qHDR = new QueryHeader;
+
+	dHDR->ID = htons(102);
+	dHDR->questions = htons(1);
+	dHDR->addRRs = 0;
 	dHDR->answers = 0;
-	dHDR->authRRs = 0; 
-	dHDR->flags = htons( DNS_QUERY | DNS_RD | DNS_STDQUERY );  
-//	dHDR->flags = htons( 0x0100 );  
+	dHDR->authRRs = 0;
+	dHDR->flags = htons(DNS_QUERY | DNS_RD | DNS_STDQUERY);
+	//	dHDR->flags = htons( 0x0100 );  
 
-	int position = host.find ("."); 
-	string sub_str; 
+	qHDR->qclass = htons(DNS_INET);
+	//	qHDR->qclass = htons( 0x0001); 
 
-	int i = 0, sub_size = 0, hdr_size = sizeof(FixedDNSheader); 
-
-	host +="." ; 
-	while ( position != -1 )
-	{	
-		sub_size = position - i; 
-		sub_str  = host.substr( i, position );
-
-		pkt[hdr_size + i] = sub_size;  // specify the size of the chunk (subdomain)
-		i++; 
-		memcpy ( pkt + hdr_size + i, sub_str.c_str(), sub_size ); // specify the actual subdomain
-
-		i += sub_size; 
-		position = host.find (".", i ); 	
-	}	
-	pkt[hdr_size+i]= 0; 
-
-	qHDR->qclass = htons(DNS_INET); 
-//	qHDR->qclass = htons( 0x0001); 
-
-	// if hostname
+		// if hostname
 	if (arg_type == 2) {
 		qHDR->type = htons(DNS_A);
 	}
@@ -183,46 +153,56 @@ int main(int argc, char* argv[])
 		qHDR->type = htons(DNS_PTR);  // for reverse dns lookup
 	}
 
-	Winsock ws; 
+	Question q;
+
+	q.CreateQuestion(host);
+
+	int size = sizeof(FixedDNSheader) + q.Size() + sizeof(QueryHeader);
+	char *pkt = new char[size];
+
+	q.MakePacket(pkt, *dHDR, *qHDR);
+
+	Winsock ws;
 
 	SOCKET sock = ws.OpenSocket(); // defined in winsock.h
 
 	// set up the address of where we're sending data
-	struct sockaddr_in send_addr ; 
+	struct sockaddr_in send_addr;
 	send_addr.sin_family = AF_INET;
-	send_addr.sin_addr.S_un.S_addr = inet_addr( dnsIP.c_str() ); // 208.67.222.222
-	send_addr.sin_port = htons ( 53 );	
+	send_addr.sin_addr.S_un.S_addr = inet_addr(dnsIP.c_str()); // 208.67.222.222
+	send_addr.sin_port = htons(53);
 
-	int send_addrSize=  sizeof(struct sockaddr_in); 
+	int send_addrSize = sizeof(struct sockaddr_in);
 
-	int sentbytes = sendto (sock, pkt,  pkt_size, 0, (struct sockaddr*) &send_addr,  send_addrSize );
-	cout<<"sentbytes=" << sentbytes <<endl; 
+	int sentbytes = sendto(sock, pkt, pkt_size, 0, (struct sockaddr*) &send_addr, send_addrSize);
+	cout << "sentbytes=" << sentbytes << endl;
 
-	for ( int i = 0; i< pkt_size; i++)
+	for (int i = 0; i < pkt_size; i++)
 	{
 		cout << "i= " << i << " " << pkt[i] << endl;
 	}
-	cout << endl; 
+	cout << endl;
 
-	char recv_buf [512]; 
+	char recv_buf[512];
 
-	int recvbytes = 0; 
-	if (sentbytes > 0)	
-		recvbytes = recvfrom (sock, recv_buf, 512, 0,  (sockaddr *)&send_addr, &send_addrSize);
+	int recvbytes = 0;
+	if (sentbytes > 0)
+		recvbytes = recvfrom(sock, recv_buf, 512, 0, (sockaddr *)&send_addr, &send_addrSize);
 
-	cout<< "recv_bytes=" << recvbytes <<endl; 
+	cout << "recv_bytes=" << recvbytes << endl;
 
-	FixedDNSheader * rDNS = (FixedDNSheader *) recv_buf; 
-	cout << "ID=" << ntohs( dHDR->ID )<< "??" << ntohs( rDNS->ID )<<endl; 
-	cout << "questions=" << ntohs( rDNS->questions ) <<endl; 
-	cout << "Answers=" << ntohs( rDNS->answers )<<endl; 
-	cout << "authRRs="<<ntohs( rDNS->authRRs) <<endl; 
-	cout << "addRRs=" << ntohs( rDNS->addRRs )<<endl; 
+	FixedDNSheader * rDNS = (FixedDNSheader *)recv_buf;
+	cout << "ID=" << ntohs(dHDR->ID) << "??" << ntohs(rDNS->ID) << endl;
+	cout << "questions=" << ntohs(rDNS->questions) << endl;
+	cout << "Answers=" << ntohs(rDNS->answers) << endl;
+	cout << "authRRs=" << ntohs(rDNS->authRRs) << endl;
+	cout << "addRRs=" << ntohs(rDNS->addRRs) << endl;
 
-	printf ( "flag 0x=%x\n", ntohs( rDNS->flags ) ) ; 
-	unsigned short rcode = 0x0F; 
-	rcode = rcode & ntohs( rDNS->flags ); 
-	cout<<"Rcode= " << rcode <<endl; ; 
+	printf("flag 0x=%x\n", ntohs(rDNS->flags));
+	unsigned short rcode = 0x0F;
+	rcode = rcode & ntohs(rDNS->flags);
+	rcode = rcode & ntohs(rDNS->flags);
+	cout << "Rcode= " << rcode << endl; ;
 
 	// for debugging:
 //	for ( int i = 0; i< recvbytes; i++)
@@ -231,18 +211,16 @@ int main(int argc, char* argv[])
 //	}
 //	cout<<endl; 
 
+	closesocket(sock);
 
-	closesocket(sock); 
+	delete[] pkt;
 
-	delete[] pkt; 
 
-	
-	printf ("Terminating main(), completion time %d ms\n", timeGetTime() - t);
+	printf("Terminating main(), completion time %d ms\n", timeGetTime() - t);
 
 	getchar();
 
-	WSACleanup();	
+	WSACleanup();
 
-	return 0; 
+	return 0;
 }
-

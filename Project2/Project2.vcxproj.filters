@@ -41,10 +41,13 @@
     <ClCompile Include="lookup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="winsock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="winsock.cpp">
+    <ClCompile Include="ref_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
