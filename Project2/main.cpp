@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 	}
 	int arg_type;
 	string host = argv[1];
+	string backwardsIP;
 	if (isdigit(host[0])) {
 		std::printf("IP\n");
 		arg_type = 1;
@@ -59,7 +60,18 @@ int main(int argc, char* argv[])
 			std::printf("Invalid IP");
 			return -1;
 		}
-		host = host + ".in-addr.arpa";
+		int position = host.find(".");
+		int i = 0; int size = 0;
+		while (position != string::npos) {
+			size = position - i;
+			backwardsIP.insert(0, host.substr( i, size ));
+			backwardsIP.insert(0, ".");
+			i += size+1;
+			position = host.find(".", i );
+		}
+		backwardsIP.insert(0, host.substr(i, host.length() - i));
+		cout << "FORWARD IP: " << host << " BACKWARDS IP: " << backwardsIP << endl;
+		host = backwardsIP + ".in-addr.arpa";
 	}
 	else {
 		std::printf("HOSTNAME\n");
